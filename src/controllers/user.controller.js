@@ -1,4 +1,6 @@
 import { UserModel } from "../models/user.model.js";
+import { EventModel } from "../models/event.model.js";
+import { matchedData } from "express-validator";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -6,11 +8,13 @@ export const getAllUsers = async (req, res) => {
       deletedAt: null,
     });
 
-    return res.status(200).json({
-      message: "Usuarios obtenidos correctamente",
-      data: users,
-    });
-
+    return res
+      .status(200)
+      .json({
+        message: "Usuarios obtenidos correctamente",
+        data: users,
+      })
+      .populate("events");
   } catch (error) {
     return res.status(500).json({
       message: "Error interno del servidor",
@@ -26,7 +30,7 @@ export const getUserById = async (req, res) => {
     const user = await UserModel.findOne({
       _id: id,
       deletedAt: null,
-    });
+    }).populate("events");
 
     if (!user) {
       return res.status(404).json({
@@ -38,7 +42,6 @@ export const getUserById = async (req, res) => {
       message: "Usuario obtenido correctamente",
       data: user,
     });
-
   } catch (error) {
     return res.status(500).json({
       message: "Error interno del servidor",
@@ -51,6 +54,8 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const data = matchedData(req);
+
     const user = await UserModel.findOne({
       _id: id,
       deletedAt: null,
@@ -62,20 +67,15 @@ export const updateUser = async (req, res) => {
       });
     }
 
-    const updatedUser = await UserModel.findByIdAndUpdate(
-      id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const updatedUser = await UserModel.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    });
 
     return res.status(200).json({
       message: "Usuario actualizado correctamente",
       data: updatedUser,
     });
-
   } catch (error) {
     return res.status(500).json({
       message: "Error interno del servidor",
@@ -103,10 +103,13 @@ export const deleteUser = async (req, res) => {
 
     await user.save();
 
+    await EventModel.deleteMany({
+      organizer: id,
+    });
+
     return res.status(200).json({
       message: "Usuario eliminado correctamente",
     });
-
   } catch (error) {
     return res.status(500).json({
       message: "Error interno del servidor",
