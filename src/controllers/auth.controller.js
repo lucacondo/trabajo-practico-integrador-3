@@ -1,4 +1,4 @@
-import { comparePassword } from "../helpers/bcrypt.helpers.js";
+import { comparePassword, hashPassword } from "../helpers/bcrypt.helpers.js";
 import { generateToken } from "../helpers/jwt.helper.js";
 import { UserModel } from "../models/user.model.js";
 
@@ -29,7 +29,7 @@ export const login = async (req, res) => {
       maxAge: 1000 * 60 * 60,
     });
 
-    return res - json({ msg: "Login exitoso" });
+    return res.status(200).json({ msg: "Login exitoso" });
   } catch (error) {
     return res.status(500).json({ msg: "Error interno en el servidor", error });
   }

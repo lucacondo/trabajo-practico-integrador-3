@@ -24,6 +24,7 @@ const UserSchema = new Schema(
 
     role: {
       type: String,
+      required: true,
       enum: ["user", "admin"],
       default: "user",
     },
@@ -62,5 +63,11 @@ const UserSchema = new Schema(
     versionKey: false,
   },
 );
+
+UserSchema.virtual("events", {
+  ref: "Event",
+  localField: "_id",
+  foreignField: "organizer",
+});
 
 export const UserModel = model("User", UserSchema);

@@ -62,14 +62,12 @@ const EventSchema = new Schema(
         maxlength: 50,
       },
     },
-  },
-  {
     organizer: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    category: [
+    categories: [
       {
         type: Schema.Types.ObjectId,
         ref: "Category",
@@ -79,8 +77,8 @@ const EventSchema = new Schema(
   },
   {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
   },
 );
 
-export const EventModel = model("Events", EventSchema);
+export const EventModel = model("Event", EventSchema);

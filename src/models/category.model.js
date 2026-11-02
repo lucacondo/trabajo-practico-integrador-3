@@ -24,11 +24,12 @@ const CategorySchema = new Schema(
       virtuals: true,
     },
   },
-  CategorySchema.virtual("events", {
-    ref: "Event",
-    localField: _id,
-    foreignField: "categories",
-  }),
 );
 
-export const CategoryModel = model("Category", CategorySchema)
+CategorySchema.virtual("events", {
+  ref: "Event",
+  localField: "_id",
+  foreignField: "categories",
+});
+
+export const CategoryModel = model("Category", CategorySchema);
