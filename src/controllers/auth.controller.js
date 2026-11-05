@@ -76,3 +76,88 @@ export const login = async (req, res) => {
     });
   }
 };
+
+export const getProfile = async (req, res) => {
+  try {
+    const user = await UserModel.findOne({
+      _id: req.user.id,
+      deletedAt: null,
+    }).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        msg: "Usuario no encontrado",
+      });
+    }
+
+    return res.status(200).json({
+      msg: "Perfil encontrado correctamente",
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Error interno en el servidor",
+      error,
+    });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const data = matchedData(req, { locations: ["body"] });
+
+    if (!data.profile || Object.keys(data.profile).length === 0) {
+      return res.status(400).json({
+        msg: "No se enviaron datos del perfil para actualizar",
+      });
+    }
+
+    const user = await UserModel.findOne({
+      _id: req.user.id,
+      deletedAt: null,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        msg: "Usuario no encontrado",
+      });
+    }
+
+    for (const field of Object.keys(data.profile)) {
+      user.set(`profile.${field}`, data.profile[field]);
+    }
+
+    await user.save();
+
+    const userData = user.toObject();
+    delete userData.password;
+
+    return res.status(200).json({
+      msg: "Perfil actualizado correctamente",
+      data: userData,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Error interno en el servidor",
+      error,
+    });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      path: "/",
+    });
+
+    return res.status(200).json({
+      msg: "Sesión cerrada correctamente",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Error interno en el servidor",
+      error,
+    });
+  }
+};
