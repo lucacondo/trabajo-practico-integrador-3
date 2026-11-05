@@ -5,18 +5,22 @@ import { UserModel } from "../models/user.model.js";
 
 export const register = async (req, res) => {
   try {
-    const data = matchedData(req);
+    const data = matchedData(req, { locations: ["body"] });
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(data.password);
 
     const user = await UserModel.create({
       ...data,
       password: hashedPassword,
     });
 
+    const userData = user.toObject();
+
+    delete userData.password;
+
     return res.status(201).json({
       msg: "Usuario registrado exitosamente",
-      data: user,
+      data: userData,
     });
   } catch (error) {
     return res.status(500).json({
@@ -28,18 +32,27 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password } = matchedData(req, {
+      locations: ["body"],
+    });
 
-    const user = await UserModel.findOne({ username, deletedAt: null });
+    const user = await UserModel.findOne({
+      username,
+      deletedAt: null,
+    });
 
     if (!user) {
-      return res.status(401).json({ msg: "Credenciales invalidas" });
+      return res.status(401).json({
+        msg: "Credenciales inválidas",
+      });
     }
 
     const validPassword = await comparePassword(password, user.password);
 
     if (!validPassword) {
-      return res.status(401).json({ msg: "Credenciales invalidas" });
+      return res.status(401).json({
+        msg: "Credenciales inválidas",
+      });
     }
 
     const token = generateToken({
@@ -53,8 +66,13 @@ export const login = async (req, res) => {
       maxAge: 1000 * 60 * 60,
     });
 
-    return res.status(200).json({ msg: "Login exitoso" });
+    return res.status(200).json({
+      msg: "Login exitoso",
+    });
   } catch (error) {
-    return res.status(500).json({ msg: "Error interno en el servidor", error });
+    return res.status(500).json({
+      msg: "Error interno en el servidor",
+      error,
+    });
   }
 };

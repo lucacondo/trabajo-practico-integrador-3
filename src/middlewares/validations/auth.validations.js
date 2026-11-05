@@ -25,9 +25,9 @@ export const validationsRegister = [
     .isEmail()
     .withMessage("El email debe ser valido")
     .custom(async (email) => {
-      const email = await UserModel.findOne({ email });
+      const existingEmail = await UserModel.findOne({ email });
 
-      if (email) {
+      if (existingEmail) {
         throw new Error("El email ya está registrado");
       }
 
@@ -39,7 +39,7 @@ export const validationsRegister = [
     .withMessage("La password no debe estar vacía")
     .isLength({ min: 8 })
     .withMessage("La password debe contener 8 caracteres minimo")
-    .matches(/[A - Z]/)
+    .matches(/[A-Z]/)
     .withMessage("Debe contener al menos una mayúscula")
     .matches(/[a-z]/)
     .withMessage("Debe contener al menos una minúscula")
@@ -50,15 +50,19 @@ export const validationsRegister = [
     .notEmpty()
     .withMessage("El firstName no debe ser vacío")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Debe contener entre 2 a 50 caracteres"),
+    .withMessage("Debe contener entre 2 a 50 caracteres")
+    .matches(/^[\p{L}]+(?:[ '-][\p{L}]+)*$/u)
+    .withMessage("Solo se permiten letras en el nombre"),
 
   body("profile.lastName")
     .notEmpty()
     .withMessage("El firstName no debe ser vacío")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Debe contener entre 2 a 50 caracteres"),
+    .withMessage("Debe contener entre 2 a 50 caracteres")
+    .matches(/^[\p{L}]+(?:[ '-][\p{L}]+)*$/u)
+    .withMessage("Solo se permiten letras en el nombre"),
 
-  body("birthDate")
+  body("profile.birthDate")
     .optional()
     .isISO8601()
     .withMessage("La fecha de nacimiento debe ser valida")
@@ -70,7 +74,7 @@ export const validationsRegister = [
       return true;
     }),
 
-  body("phone")
+  body("profile.phone")
     .optional()
     .matches(/^\d{8,15}$/),
 ];
