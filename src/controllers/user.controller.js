@@ -1,20 +1,20 @@
 import { UserModel } from "../models/user.model.js";
 import { EventModel } from "../models/event.model.js";
 import { matchedData } from "express-validator";
+import { hashPassword } from "../helpers/bcrypt.helpers.js";
 
 export const getAllUsers = async (req, res) => {
   try {
     const users = await UserModel.find({
       deletedAt: null,
-    });
-
-    return res
-      .status(200)
-      .json({
-        message: "Usuarios obtenidos correctamente",
-        data: users,
-      })
+    })
+      .select("-password")
       .populate("events");
+
+    return res.status(200).json({
+      message: "Usuarios obtenidos correctamente",
+      data: users,
+    });
   } catch (error) {
     return res.status(500).json({
       message: "Error interno del servidor",
@@ -54,7 +54,7 @@ export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const data = matchedData(req);
+    const data = matchedData(req, { locations: ["body"] });
 
     const user = await UserModel.findOne({
       _id: id,
@@ -67,10 +67,14 @@ export const updateUser = async (req, res) => {
       });
     }
 
+    if (data.password) {
+      data.password = await hashPassword(data.password);
+    }
+
     const updatedUser = await UserModel.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
-    });
+    }).select("-password");
 
     return res.status(200).json({
       message: "Usuario actualizado correctamente",
