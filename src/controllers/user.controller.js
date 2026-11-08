@@ -30,7 +30,9 @@ export const getUserById = async (req, res) => {
     const user = await UserModel.findOne({
       _id: id,
       deletedAt: null,
-    }).populate("events");
+    })
+      .populate("events")
+      .select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -71,10 +73,25 @@ export const updateUser = async (req, res) => {
       data.password = await hashPassword(data.password);
     }
 
-    const updatedUser = await UserModel.findByIdAndUpdate(id, data, {
-      new: true,
-      runValidators: true,
-    }).select("-password");
+    // Preparar los datos para actualizar
+    const updateData = { ...data };
+
+    if (data.profile) {
+      delete updateData.profile;
+
+      for (const field of Object.keys(data.profile)) {
+        updateData[`profile.${field}`] = data.profile[field];
+      }
+    }
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      {
+        new: true,
+        runValidators: true,
+      },
+    ).select("-password");
 
     return res.status(200).json({
       message: "Usuario actualizado correctamente",

@@ -6,6 +6,8 @@ export const createEventValidations = [
   body("title")
     .notEmpty()
     .withMessage("El título es obligatorio")
+    .isString()
+    .withMessage("El título debe ser un texto")
     .isLength({ min: 3, max: 150 })
     .withMessage("El título debe tener entre 3 y 150 caracteres")
     .custom(async (title) => {
@@ -21,6 +23,8 @@ export const createEventValidations = [
   body("description")
     .notEmpty()
     .withMessage("La descripción es obligatoria")
+    .isString()
+    .withMessage("El título debe ser un texto")
     .isLength({ min: 20 })
     .withMessage("La descripción debe tener al menos 20 caracteres"),
 
@@ -61,16 +65,22 @@ export const createEventValidations = [
   body("location.venue")
     .notEmpty()
     .withMessage("El venue es obligatorio")
+    .isString()
+    .withMessage("El título debe ser un texto")
     .isLength({ min: 3, max: 100 }),
 
   body("location.address")
     .notEmpty()
     .withMessage("La dirección es obligatoria")
+    .isString()
+    .withMessage("El título debe ser un texto")
     .isLength({ min: 5, max: 150 }),
 
   body("location.city")
     .notEmpty()
     .withMessage("La ciudad es obligatoria")
+    .isString()
+    .withMessage("El título debe ser un texto")
     .isString()
     .withMessage("La ciudad debe ser un texto")
     .isLength({ min: 2, max: 50 })
@@ -80,6 +90,8 @@ export const createEventValidations = [
 
   body("categories")
     .optional()
+    .isString()
+    .withMessage("El título debe ser un texto")
     .isArray()
     .withMessage("categories debe ser un array")
     .bail()

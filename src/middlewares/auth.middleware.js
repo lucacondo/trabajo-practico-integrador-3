@@ -13,6 +13,6 @@ export const authMiddleware = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(500).json({ msg: "Error interno en el servidor" });
+    return res.status(401).json({ msg: "Token invalido o expirado" });
   }
 };

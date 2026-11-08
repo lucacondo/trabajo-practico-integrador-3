@@ -23,8 +23,8 @@ app.use(cookieParser());
 //rutas
 app.use("/api", userRouter);
 app.use("/api/auth", authRouter);
-app.use("/api/auth", categoryRouter);
-app.use("/api/auth", eventRouter);
+app.use("/api", categoryRouter);
+app.use("/api", eventRouter);
 
 app.listen(PORT, async () => {
   await startDB();

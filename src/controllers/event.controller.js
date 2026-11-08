@@ -87,11 +87,23 @@ export const getEventById = async (req, res) => {
 export const updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
+
     const data = matchedData(req, { locations: ["body"] });
+
+    // Preparar los datos para actualizar
+    const updateData = { ...data };
+
+    if (data.location) {
+      delete updateData.location;
+
+      for (const field of Object.keys(data.location)) {
+        updateData[`location.${field}`] = data.location[field];
+      }
+    }
 
     const event = await EventModel.findByIdAndUpdate(
       id,
-      { $set: data },
+      { $set: updateData },
       {
         new: true,
         runValidators: true,
